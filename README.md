@@ -57,13 +57,13 @@
 Этот блок замените способом запуска вашего сервиса.
 ```bash
 # 1. Клонировать репозиторий
-git clone [<url>](https://github.com/hsemlcourse/hseml-group-project-justlevvv.git)
+git clone https://github.com/hsemlcourse/hseml-group-project-justlevvv.git
 cd hseml-group-project-justlevvv
 
 # 2. Создать виртуальное окружение
 python -m venv .venv
 source .venv/bin/activate   # Linux/macOS
-# .venv\Scripts\activate    # Windows
+.venv\Scripts\activate    # Windows
 
 # 3. Установить зависимости
 pip install -r requirements.txt
