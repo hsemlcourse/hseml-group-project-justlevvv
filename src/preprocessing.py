@@ -1,4 +1,3 @@
-# src/preprocessing.py
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -64,9 +63,11 @@ def encode_categorical(df, target_col='Attrition'):
     print(f"После кодирования: {df_encoded.shape[1]} столбцов")
     return df_encoded
 
-def split_and_save(df, target_col='Attrition', test_size=0.2, random_state=42, output_dir='data/processed/'):
+def split_and_save(df, target_col='Attrition', test_size=0.2, random_state=42, output_dir='data/processed/', scale_numeric=True):
     """
-    Разделяет данные на обучающую и тестовую выборки и сохраняет их в CSV.
+    Разделяет данные на обучающую и тестовую выборки.
+    Если scale_numeric=True, масштабирует числовые признаки (StandardScaler).
+    Сохраняет X_train, X_test, y_train, y_test в CSV.
     Возвращает X_train, X_test, y_train, y_test.
     """
     X = df.drop(target_col, axis=1)
@@ -76,9 +77,18 @@ def split_and_save(df, target_col='Attrition', test_size=0.2, random_state=42, o
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
     
+    # Масштабирование числовых признаков
+    if scale_numeric:
+        from sklearn.preprocessing import StandardScaler
+        scaler = StandardScaler()
+        # Определим числовые колонки (все, что не бинарные 0/1 после one-hot)
+        numeric_cols = X_train.select_dtypes(include=['float64', 'int64']).columns.tolist()
+        X_train[numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
+        X_test[numeric_cols] = scaler.transform(X_test[numeric_cols])
+        print(f"Числовые признаки ({len(numeric_cols)}) отмасштабированы.")
+    
     print(f"Обучающая выборка: {X_train.shape[0]} записей, Тестовая: {X_test.shape[0]} записей")
     
-    # Сохраняем в CSV
     import os
     os.makedirs(output_dir, exist_ok=True)
     
