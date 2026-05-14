@@ -11,15 +11,14 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 
-from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import (
     accuracy_score, f1_score, precision_score, recall_score,
     roc_auc_score, average_precision_score,
-    classification_report, confusion_matrix
+    classification_report
 )
 
 # ------------------- Загрузка данных -------------------
@@ -52,7 +51,7 @@ def get_models():
         'KNN': KNeighborsClassifier(),
         'Decision Tree': DecisionTreeClassifier(random_state=42, class_weight='balanced'),
         'Random Forest': RandomForestClassifier(random_state=42, class_weight='balanced', n_jobs=-1),
-        'XGBoost': XGBClassifier(random_state=42, scale_pos_weight=4, eval_metric='logloss'),  # scale_pos_weight ~ class_weight для несбаланса
+        'XGBoost': XGBClassifier(random_state=42, scale_pos_weight=4, eval_metric='logloss'),
         'Linear SVC': SVC(kernel='linear', probability=True, random_state=42, class_weight='balanced')
     }
     return models
@@ -133,7 +132,7 @@ def save_model(model, filename, models_dir='models/'):
 def run_baseline():
     X_train, X_test, y_train, y_test = load_processed_data()
     models = train_baseline_models(X_train, y_train)
-    results_df = evaluate_models_extended(models, X_test, y_test)  # теперь используем расширенную оценку
+    results_df = evaluate_models_extended(models, X_test, y_test)
     print("\nСравнение моделей:")
     print(results_df.to_string(index=False))
     save_model(models['Logistic Regression'], 'logistic_regression_baseline.pkl')

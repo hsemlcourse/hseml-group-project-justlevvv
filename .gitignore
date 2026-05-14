@@ -54,6 +54,7 @@ data/processed/*.npz
 # =============================================================================
 # Models — large binary files
 # =============================================================================
+notebooks/models/*.pkl
 models/*.pkl
 models/*.joblib
 models/*.h5
