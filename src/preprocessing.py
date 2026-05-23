@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import os
+import joblib                          # <-- добавили
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
@@ -31,10 +32,11 @@ def clean_data(df):
     return df
 
 def split_and_preprocess(df, target_col='Attrition', test_size=0.2, random_state=42,
-                         output_dir='data/processed/'):
+                         output_dir='data/processed/', models_dir=None):
     """
     Разделяет данные, затем масштабирует числовые и кодирует категориальные признаки.
     Подгонка (fit) ТОЛЬКО на train, чтобы избежать data leakage.
+    Если models_dir передан, сохраняет трансформеры (scaler.pkl, encoder.pkl).
     """
     X = df.drop(target_col, axis=1)
     y = df[target_col]
@@ -87,13 +89,23 @@ def split_and_preprocess(df, target_col='Attrition', test_size=0.2, random_state
     y_test.to_csv(f'{output_dir}y_test.csv', index=False)
     print(f"Данные сохранены в {output_dir}")
 
+    # Сохраняем трансформеры, если указан каталог
+    if models_dir is not None:
+        os.makedirs(models_dir, exist_ok=True)
+        joblib.dump(scaler, os.path.join(models_dir, 'scaler.pkl'))
+        joblib.dump(encoder, os.path.join(models_dir, 'encoder.pkl'))
+        print(f"Трансформеры сохранены в {models_dir}")
+        joblib.dump({'numeric_cols': numeric_cols, 'categorical_cols': categorical_cols},
+                    os.path.join(models_dir, 'feature_info.pkl'))
+
     return X_train_proc, X_test_proc, y_train, y_test
 
 def preprocess_pipeline(raw_data_path='data/raw/employee_attrition_dataset_10000.csv'):
     """Полный пайплайн: загрузка -> очистка -> разделение + кодирование -> сохранение."""
     df = load_raw_data(raw_data_path)
     df_clean = clean_data(df)
-    return split_and_preprocess(df_clean, output_dir='data/processed/')
+    # Передаём models_dir='models/', чтобы сохранить scaler и encoder
+    return split_and_preprocess(df_clean, output_dir='data/processed/', models_dir='models/')
 
 if __name__ == "__main__":
     preprocess_pipeline()
